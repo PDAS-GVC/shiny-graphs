@@ -9,80 +9,70 @@ library(reshape2)
 
 
 #Get data soruce
-sectors.df <- read_excel("C:/Users/julen/Desktop/180501 PVI-DA Specialist/Reports/Palestine/ECHO17FR/DB/PAL PVI Sectors Endline (Qassem).xlsx")
+sectors.df.end <- read_excel("C:/Users/julen/Desktop/180501 PVI-DA Specialist/Reports/Palestine/ECHO17FR/DB/PAL PVI Sectors Endline (Qassem).xlsx")
 #Restructure data source
-sectors.df.rest <- melt(sectors.df, id=(c("#", "Community","Governorate","Organization","Update")))
+sectors.df.end.rest <- melt(sectors.df.end, id=(c("#", "Community","Governorate","Organization","Update")))
 #Format data source
-names(sectors.df.rest)[names(sectors.df.rest) == 'variable'] <- 'Sector'
-sectors.df.rest$value <- sectors.df.rest$value * 100
-sectors.df.rest$Governorate <- factor(sectors.df.rest$Governorate)
-sectors.df.rest$Sector <- factor(sectors.df.rest$Sector, levels=c("Access","Access to Services","Civil Society Presence","Demography","Education","Energy","Gender","Health","Land Status","Livelihoods","Protection","Relation w/ PA","Settler Violence","Shelter","Transportation","Wash","Total"))
+names(sectors.df.end.rest)[names(sectors.df.end.rest) == 'variable'] <- 'Sector'
+sectors.df.end.rest$value <- sectors.df.end.rest$value * 100
+sectors.df.end.rest$Governorate <- factor(sectors.df.end.rest$Governorate)
+sectors.df.end.rest$Sector <- factor(sectors.df.end.rest$Sector, levels=c("Access","Access to Services","Civil Society Presence","Demography","Education","Energy","Gender","Health","Land Status","Livelihoods","Protection","Relation w/ PA","Settler Violence","Shelter","Transportation","Wash","Total"))
 #Aggregate at Governorate level
-attach(sectors.df.rest)
-sectors.df.rest.gov<-aggregate(sectors.df.rest, by=list(Governorate,Sector), FUN=mean)
-colnames(sectors.df.rest.gov)[colnames(sectors.df.rest.gov) == 'Group.1'] <- 'Governorate'
-colnames(sectors.df.rest.gov)[colnames(sectors.df.rest.gov) == 'Group.2'] <- 'Sector'
+attach(sectors.df.end.rest)
+sectors.df.end.rest.gov<-aggregate(sectors.df.end.rest, by=list(Governorate,Sector), FUN=mean)
+colnames(sectors.df.end.rest.gov)[colnames(sectors.df.end.rest.gov) == 'Sector'] <- 'label1'
+colnames(sectors.df.end.rest.gov)[colnames(sectors.df.end.rest.gov) == 'Governorate'] <- 'label2'
+colnames(sectors.df.end.rest.gov)[colnames(sectors.df.end.rest.gov) == 'Group.1'] <- 'Governorate'
+colnames(sectors.df.end.rest.gov)[colnames(sectors.df.end.rest.gov) == 'Group.2'] <- 'Sector'
+colnames(sectors.df.end.rest.gov)[colnames(sectors.df.end.rest.gov) == 'value'] <- 'end.value'
+detach(sectors.df.end.rest)
 
+
+sectors.df.base <- read_excel("C:/Users/julen/Desktop/180501 PVI-DA Specialist/Reports/Palestine/ECHO17FR/DB/PAL PVI Sectors Baseline (Qassem).xlsx")
+#Restructure data source
+sectors.df.base.rest <- melt(sectors.df.base, id=(c("#", "Community","Governorate","Organization","Update")))
+#Format data source
+names(sectors.df.base.rest)[names(sectors.df.base.rest) == 'variable'] <- 'Sector'
+sectors.df.base.rest$value <- sectors.df.base.rest$value * 100
+sectors.df.base.rest$Governorate <- factor(sectors.df.base.rest$Governorate)
+sectors.df.base.rest$Sector <- factor(sectors.df.base.rest$Sector, levels=c("Access","Access to Services","Civil Society Presence","Demography","Education","Energy","Gender","Health","Land Status","Livelihoods","Protection","Relation w/ PA","Settler Violence","Shelter","Transportation","Wash","Total"))
+#Aggregate at Governorate level
+attach(sectors.df.base.rest)
+sectors.df.base.rest.gov<-aggregate(sectors.df.base.rest, by=list(Governorate,Sector), FUN=mean)
+colnames(sectors.df.base.rest.gov)[colnames(sectors.df.base.rest.gov) == 'Sector'] <- 'label1'
+colnames(sectors.df.base.rest.gov)[colnames(sectors.df.base.rest.gov) == 'Governorate'] <- 'label2'
+colnames(sectors.df.base.rest.gov)[colnames(sectors.df.base.rest.gov) == 'Group.1'] <- 'Governorate'
+colnames(sectors.df.base.rest.gov)[colnames(sectors.df.base.rest.gov) == 'Group.2'] <- 'Sector'
+colnames(sectors.df.base.rest.gov)[colnames(sectors.df.base.rest.gov) == 'value'] <- 'base.value'
+detach(sectors.df.base.rest)
+
+sectors.df.rest.gov <- cbind(sectors.df.base.rest.gov, sectors.df.end.rest.gov)
+
+sectors.df.rest.gov["caca"] <- " ("
+sectors.df.rest.gov["caca1"] <- sectors.df.rest.gov$end.value - sectors.df.rest.gov$base.value
+sectors.df.rest.gov["caca2"] <- ")"
+sectors.df.rest.gov<- transform(sectors.df.rest.gov,labeed=paste0(round(end.value,0),caca,round(caca1,0),caca2))
+
+View(sectors.df.rest.gov)
 
 #Graph at Governorate level
 dev.new()
 #Object definition:
 ggplot(data=sectors.df.rest.gov, aes(Sector, Governorate)) + #Change the DF name here
-  geom_tile(aes(fill = value)) +
-  geom_text(aes(label = round(value, 0)))+
+  geom_tile(aes(fill = end.value)) +
+  geom_text(aes(label = labeed))+
   scale_fill_gradientn(colours=c("white", "lightpink", "lightcoral", "orangered2", "firebrick4"), guide="colorbar") +
   #scale_fill_gradient(low ="white", high ="red")+
-  labs(fill = "PVI Endline Value \n(avg. for Gov.)", x="Sectors",y="Governorates")+
+  labs(title="Sectors's Vulnerability by Governorate", fill= "PVI Endline Value \n(avg. for Gov.)", x="Sectors",y="Governorates",caption= "More darker red = more vulnerability")+
   #Tittle and format
-  ggtitle(label = "Sectors's Vulnerability by Governorate")+
-  theme   (plot.title = element_text(face = 'bold',size = 25.0),
+  #ggtitle(label = "Sectors's Vulnerability by Governorate")+
+  theme   (plot.title = element_text(face = 'bold',size = 15),
            panel.background = element_blank(),
            panel.grid.minor = element_line(colour="black"),
-           legend.title = element_text(size = 15, face='bold'),
-           legend.text = element_text(size = 12),
+           legend.title = element_text(size = 12, face='bold'),
+           legend.text = element_text(size = 9),
            legend.position="top",
            legend.background = element_rect(fill="gray95", size=.5, linetype="dotted"),
            legend.key.width = unit(2, "cm"),
-           axis.title=element_text(size=20,face="bold"),
-           axis.text.y = element_text(size=15),
-           axis.text.x = element_text(size=15, angle=-90))
-
-#Graph at community level by Governorate
-dev.new()
-#Object definition:
-Gov.filter <- subset(d80219.PVI.SectorialLastUpdate_Restruct1, Governorate == "Bethlehem", select=c(Community, Governorate,Sector,LastUpdate_Value)) #Change here the DF & Governorate
-options(repr.plot.width=100, repr.plot.height=8)
-ggplot(data=Gov.filter, aes(Sector, Community)) +
-  geom_tile(aes(fill = LastUpdate_Value), color = "white") +
-  geom_text(aes(label = round(LastUpdate_Value, 0)))+
-  scale_fill_gradientn(colours=c("white", "lightpink", "lightcoral", "orangered2", "firebrick4"), values=rescale(c(0, 40, 50, 70, 100)), guide="colorbar") +
-  #scale_fill_gradient(low ="white", high ="red")+
-  ylab("Communities") +
-  xlab("Sectors") +
-  labs(fill = "PVI Endline Value")+
-  #Tittle and format
-  ggtitle(label = "Sectors's Vulnerability for Jenin, Jericho, Salfit & Qalqiliya Communities")+ #Change here the Title of the graph (governorate)
-  theme  (plot.title = element_text(face = 'bold',size = 25.0),
-          panel.background = element_blank(),
-          panel.grid.minor = element_line(colour="black"),
-          legend.title = element_text(size = 15, face='bold'),
-          legend.text = element_text(size = 12),
-          legend.position="top",
-          legend.background = element_rect(fill="gray95", size=.5, linetype="dotted"),
-          legend.key.width = unit(2, "cm"),
-          axis.title=element_text(size=20,face="bold"),
-          axis.text.y = element_text(size=15),
-          axis.text.x = element_text(size=15, angle=-90))
-
-#EXTRAS:
-#Subset for multiple Governorates at the same time
-Gov.filter <- subset(d80219.PVI.SectorialLastUpdate_Restruct1, (Governorate == "Salfit" | Governorate == "Jenin" | Governorate == "Jericho" | Governorate == "Qalqiliya"), select=c(Community, Governorate,Sector,LastUpdate_Value))
-
-#The order of item in an axis can be manipulated by reordering the factor levels of the cut variable (e.g.)
-> levels(diamonds$cut)
-[1] "Fair"      "Good"      "Very Good" "Premium"
-[5] "Ideal"
-> diamonds$cut <- factor(diamonds$cut, levels = rev(levels(diamonds$cut)))
-> levels(diamonds$cut)
-[1] "Ideal"     "Premium"   "Very Good" "Good"
-[5] "Fair"
+           axis.title=element_text(size=12,face="bold"),
+           axis.text.x = element_text(angle=-90))
