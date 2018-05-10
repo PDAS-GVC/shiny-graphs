@@ -7,44 +7,45 @@
 #newdf <- melt.data.frame(PVI_totals, x,keep.rownames=TRUE)
 
 #Install/Load requiered packages
-#install.packages("readxl","ggplot2","ggrepel","reshape2")
+#install.packages("readxl", "ggplot2", "ggrepel", "reshape2")
 library(readxl)
 library(ggplot2)
 library(ggrepel)
 library(reshape2)
 
-#Get data soruce
+# Get data soruce
 PVI_totals <- read_excel("C:\\Users\\julen\\Desktop\\180501 PVI-DA Specialist\\Reports\\Palestine\\ECHO17FR\\DB\\PAL PVI Totals AllUpdates.xlsx",
-col_types=c("numeric","text","text","text","numeric","numeric","numeric","numeric"))
+  col_types = c("numeric", "text", "text", "text", "numeric", "numeric", "numeric",
+    "numeric"))
 
-#Format data source
-names(PVI_totals)[names(PVI_totals) == '2017 (Second Update)'] <- 'endline'
-PVI_totals["Geo.Level"]<- "Community"
+# Format data source
+names(PVI_totals)[names(PVI_totals) == "2017 (Second Update)"] <- "endline"
+PVI_totals["Geo.Level"] <- "Community"
 PVI_totals$change <- PVI_totals$endline - PVI_totals$baseline
 PVI_totals$baseline <- PVI_totals$baseline * 100
 PVI_totals$endline <- PVI_totals$endline * 100
 PVI_totals$change <- PVI_totals$change * 100
 
-#Agregate at Governorate level and integrate in data frame
+# Agregate at Governorate level and integrate in data frame
 a <- aggregate.data.frame(PVI_totals$baseline, list(PVI_totals$Governorate), mean)
 b <- aggregate.data.frame(PVI_totals$endline, list(PVI_totals$Governorate), mean)
 c <- aggregate.data.frame(PVI_totals$Y2016, list(PVI_totals$Governorate), mean)
 d <- aggregate.data.frame(PVI_totals$Y2017, list(PVI_totals$Governorate), mean)
-colnames(a)[colnames(a) == 'Group.1'] <- 'Governorate'
-colnames(a)[colnames(a) == 'x'] <- 'baseline'
-colnames(b)[colnames(b) == 'x'] <- 'endline'
-colnames(c)[colnames(c) == 'x'] <- 'Y2016'
-colnames(d)[colnames(d) == 'x'] <- 'Y2017'
-a["#"] <- c(999:(999-nrow(a)+1))
-a["Community"]<- a$Governorate
-a["Geo.Level"]<- "Governorate"
-a["Organization"]<- NA
-a["endline"]<- b$endline
-a["change"]<- (a$endline - a$baseline)
-a["Y2016"]<- c$Y2016
-a["Y2017"]<- d$Y2017
+colnames(a)[colnames(a) == "Group.1"] <- "Governorate"
+colnames(a)[colnames(a) == "x"] <- "baseline"
+colnames(b)[colnames(b) == "x"] <- "endline"
+colnames(c)[colnames(c) == "x"] <- "Y2016"
+colnames(d)[colnames(d) == "x"] <- "Y2017"
+a["#"] <- c(999:(999 - nrow(a) + 1))
+a["Community"] <- a$Governorate
+a["Geo.Level"] <- "Governorate"
+a["Organization"] <- NA
+a["endline"] <- b$endline
+a["change"] <- (a$endline - a$baseline)
+a["Y2016"] <- c$Y2016
+a["Y2017"] <- d$Y2017
 PVI_totals <- rbind(PVI_totals, a)
-rm(a,b,c,d)
+rm(a, b, c, d)
 
 #PVI TREND GRAPH: COLOURED BY GOVERNORATE
 dev.new()
@@ -55,7 +56,7 @@ splot <- ggplot() + geom_pointrange(aes(x = change,y = endline,ymin = endline,ym
   cols <- c("firebrick3","darkkhaki","olivedrab3","gray35","dodgerblue4","darkgoldenrod4","darkgoldenrod1","sienna1","lightskyblue3","darkolivegreen") #Define colours ff manual colors want to be set for Governorate category
   splot+
   #scale_colour_hue(limits= lim, h=c(0,360)+15,c=100,l=40,h.start=1,direction= 1)+ #If hue colors want to be set for Governorate category. diable object "col" and F(x) "scale_colour_manual"
-  scale_colour_manual(limits= lim, values= cols)+ 
+  scale_colour_manual(limits= lim, values= cols)+
   scale_shape_manual(values=c(8, 16))+
   scale_size_manual(values=c(0.5,1), guide=FALSE)+
   scale_x_continuous(name="Change: End-Baseline values", limits=c(min(PVI_totals$change)-2,max(PVI_totals$change)+2),
@@ -70,7 +71,7 @@ splot <- ggplot() + geom_pointrange(aes(x = change,y = endline,ymin = endline,ym
        max.iter=5000,force=1,
        colour = "Grey10",size = 3,
        segment.color= "black",segment.size=0.5,segment.alpha=0.25,
-       nudge_x = 0,nudge_y = 1,box.padding=2,point.padding=0.5,parse = FALSE)+
+       nudge_x = 0,nudge_y = 1,box.padding=2,point.padding=0.5)+
 #Plot background
   #Quadrant lines
   geom_hline(data=PVI_totals,yintercept = 50.0,colour = "grey13",linetype = 2) +
@@ -97,6 +98,7 @@ splot <- ggplot() + geom_pointrange(aes(x = change,y = endline,ymin = endline,ym
         legend.direction = 'horizontal',
         legend.title.align=0.5)+
 #Legend Formatting
-  guides(colour = "colorbar",shape = "legend")+
-  guides(colour = guide_legend(title = "Governorate (point line represents change)", nrow = 1, title.position = "top", keywidth=0.5, keyheight=0.5, default.unit="inch"))+
-  guides(shape = guide_legend("Geographical Level", nrow = 1, title.position = "top", keywidth=0.5, keyheight=0.5, default.unit="inch"))
+  guides(colour = "colorbar", shape = "legend") + guides(colour = guide_legend(title = "Governorate (point line represents change)",
+  nrow = 1, title.position = "top", keywidth = 0.5, keyheight = 0.5, default.unit = "inch")) +
+  guides(shape = guide_legend("Geographical Level", nrow = 1, title.position = "top",
+    keywidth = 0.5, keyheight = 0.5, default.unit = "inch"))
