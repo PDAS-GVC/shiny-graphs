@@ -1,26 +1,35 @@
 #Note: The following code offers two Heatmap Graphs: One offered at Governorate level, other at Community level by Governorate
 #Note1:Make sure LastUpdate_Value is a continues value, while Sector and Governorate are as Factor. In Original PVI DB missing values have a "-" wich make R to read it as Character. Review this.
 
-#Libraries
+#Install/Load requiered packages
+#install.packages("readxl","ggplot2","reshape2")
 library(readxl)
 library(ggplot2)
+library(reshape2)
+
 
 #Get data soruce
-sectors.df <- read_excel("C:/Users/julen/Desktop/180501 PVI-DA Specialist/Reports/Palestine/ECHO17FR/DB/PAL PVI Sectors Endline_Restruct_Gov (Qassem).xlsx")
-
+sectors.df <- read_excel("C:/Users/julen/Desktop/180501 PVI-DA Specialist/Reports/Palestine/ECHO17FR/DB/PAL PVI Sectors Endline (Qassem).xlsx")
+#Restructure data source
+sectors.df.rest <- melt(sectors.df, id=(c("#", "Community","Governorate","Organization","Update")))
 #Format data source
-names(sectors.df)[names(sectors.df) == 'Index1'] <- 'Sector'
-names(sectors.df)[names(sectors.df) == 'trans1'] <- 'LastUpdate_Value'
-sectors.df$LastUpdate_Value <- sectors.df$LastUpdate_Value * 100
-sectors.df$Governorate <- factor(sectors.df$Governorate)
-sectors.df$Sector <- factor(sectors.df$Sector, levels=c("Access","AccesstoServices","CivilSocietyPresence","Demography","Education","Energy","Gender","Health","LandStatus","Livelihoods","Protection","RelationwithPA","SettlerViolence","Shelter","Transportation","Wash","Total"))
+names(sectors.df.rest)[names(sectors.df.rest) == 'variable'] <- 'Sector'
+sectors.df.rest$value <- sectors.df.rest$value * 100
+sectors.df.rest$Governorate <- factor(sectors.df.rest$Governorate)
+sectors.df.rest$Sector <- factor(sectors.df.rest$Sector, levels=c("Access","Access to Services","Civil Society Presence","Demography","Education","Energy","Gender","Health","Land Status","Livelihoods","Protection","Relation w/ PA","Settler Violence","Shelter","Transportation","Wash","Total"))
+#Aggregate at Governorate level
+attach(sectors.df.rest)
+sectors.df.rest.gov<-aggregate(sectors.df.rest, by=list(Governorate,Sector), FUN=mean)
+colnames(sectors.df.rest.gov)[colnames(sectors.df.rest.gov) == 'Group.1'] <- 'Governorate'
+colnames(sectors.df.rest.gov)[colnames(sectors.df.rest.gov) == 'Group.2'] <- 'Sector'
+
 
 #Graph at Governorate level
 dev.new()
 #Object definition:
-ggplot(data=sectors.df, aes(Sector, Governorate)) + #Change the DF name here
-  geom_tile(aes(fill = LastUpdate_Value)) +
-  geom_text(aes(label = round(LastUpdate_Value, 0)))+ 
+ggplot(data=sectors.df.rest.gov, aes(Sector, Governorate)) + #Change the DF name here
+  geom_tile(aes(fill = value)) +
+  geom_text(aes(label = round(value, 0)))+
   scale_fill_gradientn(colours=c("white", "lightpink", "lightcoral", "orangered2", "firebrick4"), guide="colorbar") +
   #scale_fill_gradient(low ="white", high ="red")+
   labs(fill = "PVI Endline Value \n(avg. for Gov.)", x="Sectors",y="Governorates")+
@@ -36,7 +45,7 @@ ggplot(data=sectors.df, aes(Sector, Governorate)) + #Change the DF name here
            legend.key.width = unit(2, "cm"),
            axis.title=element_text(size=20,face="bold"),
            axis.text.y = element_text(size=15),
-           axis.text.x = element_text(size=15, angle=-90)) 
+           axis.text.x = element_text(size=15, angle=-90))
 
 #Graph at community level by Governorate
 dev.new()
