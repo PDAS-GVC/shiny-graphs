@@ -27,6 +27,7 @@ PVI_totals$endline <- PVI_totals$endline * 100
 PVI_totals$change <- PVI_totals$change * 100
 
 # Agregate at Governorate level and integrate in data frame
+attach(PVI_totals)
 a <- aggregate.data.frame(PVI_totals, by=list(Governorate), mean)
 a["#"] <- c(999:(999 - nrow(a) + 1))
 a["Governorate"] <- a$Group.1
