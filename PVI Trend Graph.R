@@ -27,25 +27,14 @@ PVI_totals$endline <- PVI_totals$endline * 100
 PVI_totals$change <- PVI_totals$change * 100
 
 # Agregate at Governorate level and integrate in data frame
-a <- aggregate.data.frame(PVI_totals$baseline, list(PVI_totals$Governorate), mean)
-b <- aggregate.data.frame(PVI_totals$endline, list(PVI_totals$Governorate), mean)
-c <- aggregate.data.frame(PVI_totals$Y2016, list(PVI_totals$Governorate), mean)
-d <- aggregate.data.frame(PVI_totals$Y2017, list(PVI_totals$Governorate), mean)
-colnames(a)[colnames(a) == "Group.1"] <- "Governorate"
-colnames(a)[colnames(a) == "x"] <- "baseline"
-colnames(b)[colnames(b) == "x"] <- "endline"
-colnames(c)[colnames(c) == "x"] <- "Y2016"
-colnames(d)[colnames(d) == "x"] <- "Y2017"
+a <- aggregate.data.frame(PVI_totals, by=list(Governorate), mean)
 a["#"] <- c(999:(999 - nrow(a) + 1))
+a["Governorate"] <- a$Group.1
 a["Community"] <- a$Governorate
 a["Geo.Level"] <- "Governorate"
-a["Organization"] <- NA
-a["endline"] <- b$endline
-a["change"] <- (a$endline - a$baseline)
-a["Y2016"] <- c$Y2016
-a["Y2017"] <- d$Y2017
-PVI_totals <- rbind(PVI_totals, a)
-rm(a, b, c, d)
+a1 <- a[,-1]
+PVI_totals <- rbind(PVI_totals, a1)
+rm(a, a1)
 
 #PVI TREND GRAPH: COLOURED BY GOVERNORATE
 dev.new()
