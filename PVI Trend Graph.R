@@ -52,10 +52,10 @@ dev.new()
 splot <- ggplot() + geom_pointrange(aes(x = change,y = endline,ymin = endline,ymax = baseline,colour = Governorate,group= Governorate,shape = factor(Geo.Level),size=factor(Geo.Level)),data=PVI_totals,linetype = 3,na.rm = FALSE)
 #Plot content formatting
   lim <- unique(PVI_totals$Governorate)
+  cols <- c("firebrick3","darkkhaki","olivedrab3","gray35","dodgerblue4","darkgoldenrod4","darkgoldenrod1","sienna1","lightskyblue3","darkolivegreen") #Define colours ff manual colors want to be set for Governorate category
   splot+
-  scale_colour_hue(limits= lim, h=c(0,360)+15,c=100,l=40,h.start=1,direction= 1)+ #block if manual color (below 2 lines) selected
-  #cols <- c("firebrick3","darkkhaki","olivedrab3","gray35","dodgerblue4","darkgoldenrod4","darkgoldenrod1","sienna1","lightskyblue3","darkolivegreen") #Define colours ff manual colors want to be set for Governorate category
-  #scale_colour_manual(limits= lim, values= cols)+ #If manual colors want to be set for Governorate category
+  #scale_colour_hue(limits= lim, h=c(0,360)+15,c=100,l=40,h.start=1,direction= 1)+ #If hue colors want to be set for Governorate category. diable object "col" and F(x) "scale_colour_manual"
+  scale_colour_manual(limits= lim, values= cols)+ 
   scale_shape_manual(values=c(8, 16))+
   scale_size_manual(values=c(0.5,1), guide=FALSE)+
   scale_x_continuous(name="Change: End-Baseline values", limits=c(min(PVI_totals$change)-2,max(PVI_totals$change)+2),
