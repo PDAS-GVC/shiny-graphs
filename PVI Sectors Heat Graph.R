@@ -16,16 +16,22 @@ sectors.df.end.rest <- melt(sectors.df.end, id=(c("#", "Community","Governorate"
 names(sectors.df.end.rest)[names(sectors.df.end.rest) == 'variable'] <- 'Sector'
 sectors.df.end.rest$value <- sectors.df.end.rest$value * 100
 sectors.df.end.rest$Governorate <- factor(sectors.df.end.rest$Governorate)
-sectors.df.end.rest$Sector <- factor(sectors.df.end.rest$Sector, levels=c("Access","Access to Services","Civil Society Presence","Demography","Education","Energy","Gender","Health","Land Status","Livelihoods","Protection","Relation w/ PA","Settler Violence","Shelter","Transportation","Wash","Total"))
+sectors.df.end.rest$Sector <- factor(sectors.df.end.rest$Sector, levels=c("Access","Access to Services","Civil Society Presence","Demography","Education","Energy","Gender","Health","Land Status","Livelihoods","Protection","Relation with PA","Settler Violence","Shelter","Transportation","Wash","Totals"))
+
 #Aggregate at Governorate level
 attach(sectors.df.end.rest)
 sectors.df.end.rest.gov<-aggregate(sectors.df.end.rest, by=list(Governorate,Sector), FUN=mean)
-colnames(sectors.df.end.rest.gov)[colnames(sectors.df.end.rest.gov) == 'Sector'] <- 'label1'
-colnames(sectors.df.end.rest.gov)[colnames(sectors.df.end.rest.gov) == 'Governorate'] <- 'label2'
-colnames(sectors.df.end.rest.gov)[colnames(sectors.df.end.rest.gov) == 'Group.1'] <- 'Governorate'
-colnames(sectors.df.end.rest.gov)[colnames(sectors.df.end.rest.gov) == 'Group.2'] <- 'Sector'
+drops <- c("Sector","Governorate","Community","Organization","Update")
+sectors.df.end.rest.gov<-sectors.df.end.rest.gov[ , !(names(sectors.df.end.rest.gov) %in% drops)]
+#colnames(sectors.df.end.rest.gov)[colnames(sectors.df.end.rest.gov) == 'Sector'] <- 'label1'
+#colnames(sectors.df.end.rest.gov)[colnames(sectors.df.end.rest.gov) == 'Governorate'] <- 'label2'
+colnames(sectors.df.end.rest.gov)[colnames(sectors.df.end.rest.gov) == 'Group.1'] <- 'end.Governorate'
+colnames(sectors.df.end.rest.gov)[colnames(sectors.df.end.rest.gov) == 'Group.2'] <- 'end.Sector'
 colnames(sectors.df.end.rest.gov)[colnames(sectors.df.end.rest.gov) == 'value'] <- 'end.value'
+colnames(sectors.df.end.rest.gov)[colnames(sectors.df.end.rest.gov) == '#'] <- 'end.#'
+sectors.df.end.rest.gov["end.#"] <- c(999:(999 - nrow(sectors.df.end.rest.gov) + 1))
 detach(sectors.df.end.rest)
+View(sectors.df.end.rest.gov)
 
 
 sectors.df.base <- read_excel("C:/Users/julen/Desktop/180501 PVI-DA Specialist/Reports/Palestine/ECHO17FR/DB/PAL PVI Sectors Baseline (Qassem).xlsx")
@@ -35,19 +41,42 @@ sectors.df.base.rest <- melt(sectors.df.base, id=(c("#", "Community","Governorat
 names(sectors.df.base.rest)[names(sectors.df.base.rest) == 'variable'] <- 'Sector'
 sectors.df.base.rest$value <- sectors.df.base.rest$value * 100
 sectors.df.base.rest$Governorate <- factor(sectors.df.base.rest$Governorate)
-sectors.df.base.rest$Sector <- factor(sectors.df.base.rest$Sector, levels=c("Access","Access to Services","Civil Society Presence","Demography","Education","Energy","Gender","Health","Land Status","Livelihoods","Protection","Relation w/ PA","Settler Violence","Shelter","Transportation","Wash","Total"))
+sectors.df.base.rest$Sector <- factor(sectors.df.base.rest$Sector, levels=c("Access","Access to Services","Civil Society Presence","Demography","Education","Energy","Gender","Health","Land Status","Livelihoods","Protection","Relation with PA","Settler Violence","Shelter","Transportation","Wash","Totals"))
 #Aggregate at Governorate level
 attach(sectors.df.base.rest)
 sectors.df.base.rest.gov<-aggregate(sectors.df.base.rest, by=list(Governorate,Sector), FUN=mean)
-colnames(sectors.df.base.rest.gov)[colnames(sectors.df.base.rest.gov) == 'Sector'] <- 'label1'
-colnames(sectors.df.base.rest.gov)[colnames(sectors.df.base.rest.gov) == 'Governorate'] <- 'label2'
-colnames(sectors.df.base.rest.gov)[colnames(sectors.df.base.rest.gov) == 'Group.1'] <- 'Governorate'
-colnames(sectors.df.base.rest.gov)[colnames(sectors.df.base.rest.gov) == 'Group.2'] <- 'Sector'
+drops <- c("Sector","Governorate","Community","Organization","Update")
+sectors.df.base.rest.gov<-sectors.df.base.rest.gov[ , !(names(sectors.df.base.rest.gov) %in% drops)]
+#colnames(sectors.df.base.rest.gov)[colnames(sectors.df.base.rest.gov) == 'Sector'] <- 'label1'
+#colnames(sectors.df.base.rest.gov)[colnames(sectors.df.base.rest.gov) == 'Governorate'] <- 'label2'
+colnames(sectors.df.base.rest.gov)[colnames(sectors.df.base.rest.gov) == 'Group.1'] <- 'base.Governorate'
+colnames(sectors.df.base.rest.gov)[colnames(sectors.df.base.rest.gov) == 'Group.2'] <- 'base.Sector'
 colnames(sectors.df.base.rest.gov)[colnames(sectors.df.base.rest.gov) == 'value'] <- 'base.value'
+colnames(sectors.df.base.rest.gov)[colnames(sectors.df.base.rest.gov) == '#'] <- 'base.#'
+sectors.df.base.rest.gov["base.#"] <- c(999:(999 - nrow(sectors.df.base.rest.gov) + 1))
 detach(sectors.df.base.rest)
+View(sectors.df.base.rest.gov)
 
 sectors.df.rest.gov <- cbind(sectors.df.base.rest.gov, sectors.df.end.rest.gov)
+drops <- c("end.Sector","end.Governorate","end.#")
+sectors.df.rest.gov<-sectors.df.rest.gov[ , !(names(sectors.df.rest.gov) %in% drops)]
+colnames(sectors.df.rest.gov)[colnames(sectors.df.rest.gov) == 'base.Sector'] <- 'Sector'
+colnames(sectors.df.rest.gov)[colnames(sectors.df.rest.gov) == 'base.Governorate'] <- 'Governorate'
+colnames(sectors.df.rest.gov)[colnames(sectors.df.rest.gov) == 'base.#'] <- '#'
+View(sectors.df.rest.gov)
 
+attach(sectors.df.rest.gov)
+sectors.df.rest.gov.temp <- aggregate(sectors.df.rest.gov, by= list(Sector),FUN=mean)
+drops <- c("Sector")
+sectors.df.rest.gov.temp<-sectors.df.rest.gov.temp[ , !(names(sectors.df.rest.gov.temp) %in% drops)]
+colnames(sectors.df.rest.gov.temp)[colnames(sectors.df.rest.gov.temp) == 'Group.1'] <- 'Sector'
+sectors.df.rest.gov.temp["Governorate"] <- "All Governorates"
+
+sectors.df.rest.gov <- rbind(sectors.df.rest.gov, sectors.df.rest.gov.temp)
+
+View(sectors.df.rest.gov.temp)
+
+#Create compiled label: end.value(end.value-base.value)
 sectors.df.rest.gov["caca"] <- " ("
 sectors.df.rest.gov["caca1"] <- sectors.df.rest.gov$end.value - sectors.df.rest.gov$base.value
 sectors.df.rest.gov["caca2"] <- ")"
