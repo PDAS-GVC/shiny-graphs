@@ -43,18 +43,18 @@ dev.new()
 splot <- ggplot() + geom_pointrange(aes(x = change,y = endline,ymin = endline,ymax = baseline,colour = Governorate,group= Governorate,shape = factor(Geo.Level),size=factor(Geo.Level)),data=PVI_totals,linetype = 3,na.rm = FALSE)
 #Plot content formatting
   lim <- unique(PVI_totals$Governorate)
-  cols <- c("firebrick3","darkkhaki","olivedrab3","gray35","dodgerblue4","darkgoldenrod4","darkgoldenrod1","sienna1","lightskyblue3","darkolivegreen") #Define colours ff manual colors want to be set for Governorate category
+  cols <- c("firebrick3","darkkhaki","olivedrab3","gray35","dodgerblue4","darkgoldenrod4","darkgoldenrod2","sienna1","lightskyblue4","darkolivegreen") #Define colours ff manual colors want to be set for Governorate category
   splot+
   #scale_colour_hue(limits= lim, h=c(0,360)+15,c=100,l=40,h.start=1,direction= 1)+ #If hue colors want to be set for Governorate category. diable object "col" and F(x) "scale_colour_manual"
   scale_colour_manual(limits= lim, values= cols)+
-  scale_shape_manual(values=c(8, 16))+
+  scale_shape_manual(values=c(8, 19))+
   scale_size_manual(values=c(0.5,1), guide=FALSE)+
   scale_x_continuous(name="Change: End-Baseline values", limits=c(min(PVI_totals$change)-2,max(PVI_totals$change)+2),
                      breaks=seq(round(min(PVI_totals$change),-1),round(max(PVI_totals$change)+1),2.5),expand=c(0.0, 0)) +
   scale_y_continuous(name="PVI Endline Value", limits=c(min(PVI_totals$endline,PVI_totals$baseline)-2,max(PVI_totals$endline,PVI_totals$baseline)+2),
                      breaks=seq(round(min(PVI_totals$endline,PVI_totals$baseline),-1),round(max(PVI_totals$endline,PVI_totals$baseline),+1),5),expand=c(0.0, 0))+
 #Labelling
-  labs(caption="NB: Moving Ahead: reduced vulnerability (Endline-Baseline) and Endline value < 50%; Catching-up: reduced Vul. and Endline ≥ 50%; Losing Momentum: increased Vul. and Endline < 50%; Falling Behing: increased Vul. and Endline ≥ 50%")+
+  labs(title= "PVI Trend Analysis for Communities", subtitle= "Categorizing Vulnerability change between baseline and endline", caption="NB: Moving Ahead: reduced vulnerability (Endline-Baseline) and Endline value < 50%; Catching-up: reduced Vul. and Endline ≥ 50%;\nLosing Momentum: increased Vul. and Endline < 50%; Falling Behing: increased Vul. and Endline ≥ 50%")+
   geom_text_repel(mapping=aes(x = change,y = endline,label = Community),
        data=subset(PVI_totals, change < quantile(PVI_totals$change, probs = 0.05) | change > quantile(PVI_totals$change, probs = 0.95) |
        endline < quantile(PVI_totals$endline, probs = 0.05) | endline > quantile(PVI_totals$endline, probs = 0.95)), #change values here to set the range of points to be labelled
@@ -77,8 +77,10 @@ splot <- ggplot() + geom_pointrange(aes(x = change,y = endline,ymin = endline,ym
   geom_text(data=PVI_totals,x = max(PVI_totals$change)-2,y = max(PVI_totals$endline,PVI_totals$baseline),label = 'Falling Behind',colour = "darkred",size = 5.0,parse = FALSE)+
   geom_text(data=PVI_totals,x = max(PVI_totals$change)-2,y = min(PVI_totals$endline,PVI_totals$baseline),label = 'Losing Momentum',colour = "gold4",size = 5.0,parse = FALSE)+
 #General Plot Formatting
-  theme(line = element_blank(),title = element_text(face = 'bold',size = 10.0),plot.background = element_blank(),
+  theme(line = element_blank(),
         plot.title = element_text(face = 'bold',size = 15.0),
+        plot.subtitle=element_text(size=12,face="plain"),
+        plot.caption=element_text(hjust = 0,face="plain"),
         axis.title = element_text(face = 'bold',colour = "black", size= 12),
         axis.text = element_text(face = 'bold',colour = "black", size=9),
         axis.ticks = element_line(),
